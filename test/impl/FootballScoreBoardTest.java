@@ -23,4 +23,13 @@ public class FootballScoreBoardTest {
                 footballScoreBoard.getBoardSummary()
         );
     }
+
+    @Test
+    public void whenMatchAlreadyStartedAndFinishedCallExpectToRemoveFromScoreBoard() {
+        var footballScoreBoard = new FootballScoreBoard();
+
+        footballScoreBoard.startMatch("BRAZIL", "ARGENTINA");
+        footballScoreBoard.finishMatch("BRAZIL", "ARGENTINA");
+        assertEquals(List.of(), footballScoreBoard.getBoardSummary());
+    }
 }

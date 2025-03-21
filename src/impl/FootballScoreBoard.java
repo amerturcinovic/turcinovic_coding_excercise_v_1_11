@@ -20,7 +20,10 @@ public class FootballScoreBoard implements ScoreBoardRecordable {
 
     @Override
     public MatchInfo finishMatch(String homeTeam, String guestTeam) {
-        return null;
+        //TODO: Consider to use different value model internal and private as we do not need for remove result
+        MatchInfo matchInfo = new MatchInfo(homeTeam, 0, guestTeam, 0);
+        scoreBoard.remove(matchInfo.hashCode());
+        return matchInfo;
     }
 
     @Override

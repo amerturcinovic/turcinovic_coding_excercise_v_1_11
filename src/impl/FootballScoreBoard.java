@@ -25,6 +25,17 @@ public class FootballScoreBoard implements ScoreBoardRecordable {
 
     @Override
     public void updateScore(MatchInfo matchInfo) {
+        var matchDetails = toMatchDetails(matchInfo);
+        scoreBoard.computeIfPresent(matchDetails.hashCode(), (_, _) -> matchDetails);
+    }
+
+    private static MatchDetails toMatchDetails(MatchInfo matchInfo) {
+        return new MatchDetails(
+                matchInfo.homeTeamName(),
+                matchInfo.homeTeamScore(),
+                matchInfo.guestTeamName(),
+                matchInfo.guestTeamScore()
+        );
     }
 
     private MatchInfo toMatchInfo(MatchDetails matchDetails) {

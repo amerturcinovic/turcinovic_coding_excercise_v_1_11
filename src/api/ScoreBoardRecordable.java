@@ -1,13 +1,12 @@
 package api;
 
 import models.MatchInfo;
-import models.MatchResultChangeRequest;
 
 import java.util.List;
 
 public interface ScoreBoardRecordable {
-    MatchInfo startMatch(String homeTeam, String guestTeam);
-    MatchInfo finishMatch(String homeTeam, String guestTeam);
-    MatchInfo updateScore(MatchResultChangeRequest matchResultChangeRequest);
+    void startMatch(String homeTeam, String guestTeam);
+    void finishMatch(String homeTeam, String guestTeam);
+    void updateScore(MatchInfo matchInfo);
     List<MatchInfo> getBoardSummary();
 }

@@ -17,7 +17,7 @@ public class FootballScoreBoardTest {
         assertEquals(
                 List.of(
                         new MatchInfo(
-                                "ARGENTINA", 0, "BRAZIL", 0
+                                "BRAZIL", 0, "ARGENTINA", 0
                         )
                 ),
                 footballScoreBoard.getBoardSummary()

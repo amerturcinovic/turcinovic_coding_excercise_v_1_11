@@ -4,16 +4,18 @@ import api.ScoreBoardRecordable;
 import models.MatchInfo;
 import models.MatchResultChangeRequest;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class FootballScoreBoard implements ScoreBoardRecordable {
-    private final Map<Integer, MatchInfo> scoreBoard = new HashMap<>();
+    private final Map<Integer, MatchInfo> scoreBoard = new ConcurrentHashMap<>();
 
     @Override
     public MatchInfo startMatch(String homeTeam, String guestTeam) {
-        return null;
+        MatchInfo matchInfo = new MatchInfo(homeTeam, 0, guestTeam, 0);
+        scoreBoard.putIfAbsent(matchInfo.hashCode(), matchInfo);
+        return matchInfo;
     }
 
     @Override
@@ -28,7 +30,7 @@ public class FootballScoreBoard implements ScoreBoardRecordable {
 
     @Override
     public List<MatchInfo> getBoardSummary() {
-        return List.of();
+        return scoreBoard.values().stream().toList();
     }
 
     private record MatchKey(String homeTeam, String awayTeam) { }

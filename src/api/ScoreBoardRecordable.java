@@ -5,8 +5,8 @@ import models.MatchInfo;
 import java.util.List;
 
 public interface ScoreBoardRecordable {
-    void startMatch(String homeTeam, String guestTeam);
-    void finishMatch(String homeTeam, String guestTeam);
-    void updateScore(MatchInfo matchInfo);
+    MatchInfo startMatch(String homeTeam, String guestTeam) throws IllegalArgumentException;
+    MatchInfo finishMatch(String homeTeam, String guestTeam) throws IllegalArgumentException;
+    MatchInfo updateScore(MatchInfo matchInfo) throws IllegalArgumentException;
     List<MatchInfo> getBoardSummary();
 }

@@ -2,73 +2,50 @@ package impl;
 
 import api.ScoreBoardRecordable;
 import models.MatchInfo;
+import persistance.InMemoryCollection;
+import persistance.Repository;
 
 import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class FootballScoreBoard implements ScoreBoardRecordable {
-    private final Map<Integer, MatchDetails> scoreBoard = new ConcurrentHashMap<>();
+    private final Repository repository = new InMemoryCollection();
 
     @Override
-    public void startMatch(String homeTeam, String guestTeam) {
-        var matchDetails = new MatchDetails(homeTeam, guestTeam);
-        scoreBoard.putIfAbsent(matchDetails.hashCode(), matchDetails);
-    }
+    public MatchInfo startMatch(String homeTeam, String guestTeam) {
+        validateArguments(homeTeam, guestTeam);
 
-    @Override
-    public void finishMatch(String homeTeam, String guestTeam) {
-        var matchChangeInfo = new MatchDetails(homeTeam, guestTeam);
-        scoreBoard.remove(matchChangeInfo.hashCode());
+        MatchInfo matchInfo = new MatchInfo(homeTeam, guestTeam);
+        return repository.save(matchInfo);
     }
 
     @Override
-    public void updateScore(MatchInfo matchInfo) {
-        var matchDetails = toMatchDetails(matchInfo);
-        scoreBoard.computeIfPresent(matchDetails.hashCode(), (_, _) -> matchDetails);
+    public MatchInfo finishMatch(String homeTeam, String guestTeam) {
+        validateArguments(homeTeam, guestTeam);
+
+        MatchInfo matchInfo = new MatchInfo(homeTeam, guestTeam);
+        return repository.delete(matchInfo);
     }
 
-    private static MatchDetails toMatchDetails(MatchInfo matchInfo) {
-        return new MatchDetails(
-                matchInfo.homeTeamName(),
-                matchInfo.homeTeamScore(),
-                matchInfo.guestTeamName(),
-                matchInfo.guestTeamScore()
-        );
-    }
-
-    private MatchInfo toMatchInfo(MatchDetails matchDetails) {
-        return new MatchInfo(
-                matchDetails.homeTeamName,
-                matchDetails.homeTeamScore(),
-                matchDetails.guestTeamName(),
-                matchDetails.guestTeamScore
-        );
+    @Override
+    public MatchInfo updateScore(MatchInfo matchInfo) {
+        validateArguments(matchInfo);
+        return repository.update(matchInfo);
     }
 
     @Override
     public List<MatchInfo> getBoardSummary() {
-        return scoreBoard
-                .values()
-                .stream()
-                .map(this::toMatchInfo)
-                .toList();
+        return repository.getAll();
     }
 
-    private record MatchDetails(
-            String homeTeamName,
-            Integer homeTeamScore,
-            String guestTeamName,
-            Integer guestTeamScore
-    ) {
-        public MatchDetails(String homeTeam, String guestTeamName) {
-            this(homeTeam, 0, guestTeamName, 0);
-        }
+    private void validateArguments(String homeTeam, String guestTeam) {
+        if (homeTeam == null || guestTeam == null || homeTeam.isEmpty() || guestTeam.isEmpty())
+            throw new IllegalArgumentException("You must provide name for both teams");
+    }
 
-        @Override
-        public int hashCode() {
-            return Objects.hash(homeTeamName, guestTeamName);
-        }
+    private void validateArguments(MatchInfo matchInfo) {
+        validateArguments(matchInfo.homeTeamName(), matchInfo.guestTeamName());
+
+        if (matchInfo.guestTeamScore() < 1 || matchInfo.homeTeamScore() < 1)
+            throw new IllegalArgumentException("Score number must be positive number and greater then zero");
     }
 }

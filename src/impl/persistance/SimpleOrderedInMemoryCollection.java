@@ -4,13 +4,18 @@ import impl.models.MatchInfo;
 
 import java.util.*;
 
-public class InMemoryCollection implements Repository, Sortable {
+/***
+ * Implementation of Repository as simple in memory ordered hash map
+ * This implementation is not thread safe, but we could wrap this as synchronized collection
+ * or has another concurrent thread safe implementation like ConcurrentHashMap
+ */
+public class SimpleOrderedInMemoryCollection implements Repository, Sortable {
     private final Map<Integer, MatchDetailsEntity> storage = new LinkedHashMap<>();
 
     @Override
     public MatchInfo save(MatchInfo matchInfo) {
         var mathId = getStorageHashId(matchInfo);
-        storage.putIfAbsent(mathId, toMatchDetails(matchInfo));
+        storage.putIfAbsent(mathId, toMatchDetailsEntity(matchInfo));
         return toMatchInfo(storage.get(mathId));
     }
 
@@ -24,8 +29,17 @@ public class InMemoryCollection implements Repository, Sortable {
     @Override
     public MatchInfo update(MatchInfo matchInfo) {
         var matchId = getStorageHashId(matchInfo);
-        storage.computeIfPresent(matchId, (_, _) -> toMatchDetails(matchInfo));
-        return matchInfo;
+        storage.computeIfPresent(matchId, (_, matchDetails) -> {
+            if (isScoreEqualOrGreater(matchInfo, matchDetails))
+                return matchDetails;
+
+            return toMatchDetailsEntity(matchInfo);
+        });
+        return toMatchInfo(storage.get(matchId));
+    }
+
+    private static boolean isScoreEqualOrGreater(MatchInfo matchInfo, MatchDetailsEntity matchDetails) {
+        return matchDetails.homeTeamScore() > matchInfo.homeTeamScore() || matchDetails.guestTeamScore() > matchInfo.guestTeamScore();
     }
 
     @Override
@@ -39,6 +53,7 @@ public class InMemoryCollection implements Repository, Sortable {
     @Override
     public String toString() {
         List<MatchDetailsEntity> sorted = getSorted();
+
         StringBuilder stringBuilder = new StringBuilder();
         for (int i = 0; i < sorted.size(); i++) {
             stringBuilder.append((i + 1)).append(". ").append(sorted.get(i)).append("\n");
@@ -52,6 +67,6 @@ public class InMemoryCollection implements Repository, Sortable {
     }
 
     private Integer getStorageHashId(MatchInfo matchInfo) {
-        return toMatchDetails(matchInfo).hashCode();
+        return toMatchDetailsEntity(matchInfo).hashCode();
     }
 }

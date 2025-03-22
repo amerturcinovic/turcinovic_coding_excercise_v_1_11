@@ -1,6 +1,8 @@
 package impl;
 
+import api.TrackableScoreBoard;
 import impl.models.MatchInfo;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -10,10 +12,16 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class FootballScoreBoardTest {
+    private TrackableScoreBoard footballScoreBoard;
+
+    @BeforeEach
+    public void init() {
+        footballScoreBoard = new FootballWorldCupScoreBoard();
+    }
+
     @Test
     public void whenOneMatchStarted_ExpectToShow_OnScoreBoard() {
         // given
-        FootballTrackableScoreBoard footballScoreBoard = new FootballTrackableScoreBoard();
         var expectedMatchInfo = new MatchInfo("BRAZIL", 0, "ARGENTINA", 0);
 
         // when
@@ -21,27 +29,25 @@ public class FootballScoreBoardTest {
 
         // then
         assertEquals(expectedMatchInfo, actualMatchInfo);
-        assertEquals(List.of(expectedMatchInfo), footballScoreBoard.geBoardRanking());
+        assertEquals(List.of(expectedMatchInfo), footballScoreBoard.getBoardRanking());
     }
 
     @Test
     public void whenMatchAlreadyStarted_And_FinishedCalled_Expect_EmptyScoreBoard() {
         // given
-        var footballScoreBoard = new FootballTrackableScoreBoard();
+        var expectedEmptyScoreBoard = List.of();
 
         // when
-        MatchInfo startMathInfo = footballScoreBoard.startMatch("BRAZIL", "ARGENTINA");
-        MatchInfo finishMatchInfo = footballScoreBoard.finishMatch("BRAZIL", "ARGENTINA");
+        MatchInfo startMatchInfo = footballScoreBoard.startMatch("BRAZIL", "ARGENTINA");
+        MatchInfo endMatchInfo = footballScoreBoard.finishMatch("BRAZIL", "ARGENTINA");
 
         // then
-        assertEquals(startMathInfo, finishMatchInfo);
-        assertEquals(List.of(), footballScoreBoard.geBoardRanking());
+        assertEquals(expectedEmptyScoreBoard, footballScoreBoard.getBoardRanking());
     }
 
     @Test
     public void whenMatchAlreadyStarted_And_UpdatedCalled_ExpectToShow_OnScoreBoard() {
         // given
-        var footballScoreBoard = new FootballTrackableScoreBoard();
         var expectedMathInfoUpdate = new MatchInfo("BRAZIL", 1, "ARGENTINA", 1);
 
         // when
@@ -50,13 +56,17 @@ public class FootballScoreBoardTest {
 
         // then
         assertEquals(actualMatchInfoUpdate, expectedMathInfoUpdate);
-        assertEquals(List.of(expectedMathInfoUpdate), footballScoreBoard.geBoardRanking());
+        assertEquals(List.of(expectedMathInfoUpdate), footballScoreBoard.getBoardRanking());
     }
 
     @Test
     public void whenMultipleMachStarted_ExpectToShow_OnScoreBoard_SortedByMostRecentStart() {
         // given
-        var footballScoreBoard = new FootballTrackableScoreBoard();
+        var expectedMatchesInProgress = List.of(
+                new MatchInfo("CROATIA", 0, "ENGLAND", 0),
+                new MatchInfo("SPAIN", 0, "FRANCE", 0),
+                new MatchInfo("BRAZIL", 0, "ARGENTINA", 0)
+        );
 
         // when
         footballScoreBoard.startMatch("BRAZIL", "ARGENTINA");
@@ -64,15 +74,12 @@ public class FootballScoreBoardTest {
         footballScoreBoard.startMatch("CROATIA", "ENGLAND");
 
 
-        System.out.println(footballScoreBoard);
-
-        assertTrue(true);
+        assertEquals(expectedMatchesInProgress, footballScoreBoard.getBoardRanking());
     }
 
     @Test
     public void whenMultipleMachStarted__And_UpdateScore_ExpectToShow_OnScoreBoard_SortedByMostScores_And_MostRecentStart() {
         // given
-        var footballScoreBoard = new FootballTrackableScoreBoard();
 
         // when
         footballScoreBoard.startMatch("BRAZIL", "ARGENTINA");
@@ -99,19 +106,19 @@ public class FootballScoreBoardTest {
     @ParameterizedTest
     @CsvSource({",\"\"", "\"\",", ","})
     public void whenStartMatchCalled_WithInvalidArgument_Expect_Exception(String testHomeTeamName, String testGuestTeamName) {
-        assertThrows(IllegalArgumentException.class, () -> new FootballTrackableScoreBoard().startMatch(testHomeTeamName, testGuestTeamName));
+        assertThrows(IllegalArgumentException.class, () -> footballScoreBoard.startMatch(testHomeTeamName, testGuestTeamName));
     }
 
     @ParameterizedTest
     @CsvSource({",\"\"", "\"\",", ","})
     public void whenFinishMatchCalled_WithInvalidArgument_Expect_Exception(String testHomeTeamName, String testGuestTeamName) {
-        assertThrows(IllegalArgumentException.class, () -> new FootballTrackableScoreBoard().finishMatch(testHomeTeamName, testGuestTeamName));
+        assertThrows(IllegalArgumentException.class, () -> footballScoreBoard.finishMatch(testHomeTeamName, testGuestTeamName));
     }
 
     @ParameterizedTest
     @CsvSource({",\"\"", "\"\",", ","})
     public void whenUpdateMatchCalled_WithInvalidArgument_Expect_Exception(String testHomeTeamName, String testGuestTeamName) {
-        assertThrows(IllegalArgumentException.class, () -> new FootballTrackableScoreBoard().updateMatch(
+        assertThrows(IllegalArgumentException.class, () -> footballScoreBoard.updateMatch(
                 new MatchInfo(testHomeTeamName, 1, testGuestTeamName, 0)
         ));
     }

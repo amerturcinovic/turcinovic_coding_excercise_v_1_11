@@ -4,6 +4,9 @@ import impl.models.MatchInfo;
 
 import java.util.List;
 
+/***
+ * Repository interface that has basic CRUD functions
+ */
 public interface Repository {
     MatchInfo save(MatchInfo matchInfo);
     MatchInfo delete(MatchInfo matchInfo);
@@ -19,7 +22,7 @@ public interface Repository {
         );
     }
 
-    default MatchDetailsEntity toMatchDetails(MatchInfo matchInfo) {
+    default MatchDetailsEntity toMatchDetailsEntity(MatchInfo matchInfo) {
         return new MatchDetailsEntity(
                 matchInfo.homeTeamName(),
                 matchInfo.homeTeamScore(),

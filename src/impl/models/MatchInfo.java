@@ -1,4 +1,4 @@
-package models;
+package impl.models;
 
 public record MatchInfo(
         String homeTeamName,

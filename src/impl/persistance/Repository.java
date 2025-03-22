@@ -1,6 +1,6 @@
-package persistance;
+package impl.persistance;
 
-import models.MatchInfo;
+import impl.models.MatchInfo;
 
 import java.util.List;
 

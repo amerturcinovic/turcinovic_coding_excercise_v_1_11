@@ -2,15 +2,29 @@ package impl.persistance;
 
 import impl.models.MatchInfo;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 /***
  * Implementation of Repository as simple in memory ordered hash map
  * This implementation is not thread safe, but we could wrap this as synchronized collection
- * or has another concurrent thread safe implementation like ConcurrentHashMap
+ * or add another concurrent thread safe implementation like ConcurrentHashMap
+ * that is why if we want to change our Repository we could just add new implementation in
  */
 public class SimpleOrderedInMemoryCollection implements Repository, Sortable {
     private final Map<Integer, MatchDetailsEntity> storage = new LinkedHashMap<>();
+
+    @Override
+    public MatchInfo findByNames(String homeTeamName, String guestTeamName) {
+        MatchDetailsEntity matchDetailsEntity = storage.get(getStorageHashId(new MatchInfo(homeTeamName, guestTeamName)));
+
+        if (matchDetailsEntity != null)
+            return toMatchInfo(matchDetailsEntity);
+
+        return null;
+    }
 
     @Override
     public MatchInfo save(MatchInfo matchInfo) {
@@ -23,23 +37,22 @@ public class SimpleOrderedInMemoryCollection implements Repository, Sortable {
     public MatchInfo delete(MatchInfo matchInfo) {
         var matchId = getStorageHashId(matchInfo);
         var matchDetailsEntity = storage.remove(matchId);
-        return toMatchInfo(matchDetailsEntity);
+        if (matchDetailsEntity != null)
+            return toMatchInfo(matchDetailsEntity);
+
+        return null;
     }
 
     @Override
     public MatchInfo update(MatchInfo matchInfo) {
         var matchId = getStorageHashId(matchInfo);
-        storage.computeIfPresent(matchId, (_, matchDetails) -> {
-            if (isScoreEqualOrGreater(matchInfo, matchDetails))
-                return matchDetails;
+        MatchDetailsEntity matchDetailsEntity = storage.get(matchId);
+        if (matchDetailsEntity == null)
+            return null;
 
-            return toMatchDetailsEntity(matchInfo);
-        });
-        return toMatchInfo(storage.get(matchId));
-    }
+        storage.computeIfPresent(matchId, (_, _) -> toMatchDetailsEntity(matchInfo));
 
-    private static boolean isScoreEqualOrGreater(MatchInfo matchInfo, MatchDetailsEntity matchDetails) {
-        return matchDetails.homeTeamScore() > matchInfo.homeTeamScore() || matchDetails.guestTeamScore() > matchInfo.guestTeamScore();
+        return matchInfo;
     }
 
     @Override

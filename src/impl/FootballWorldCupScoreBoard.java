@@ -26,18 +26,29 @@ class FootballWorldCupScoreBoard implements TrackableScoreBoard {
     @Override
     public MatchInfo startMatch(String homeTeamName, String guestTeamName) throws IllegalArgumentException {
         validateArguments(homeTeamName, guestTeamName);
+        if (isMatchInProgress(homeTeamName, guestTeamName))
+            throw new IllegalArgumentException("Match already in progress and started");
+
         return repository.save(new MatchInfo(homeTeamName, guestTeamName));
     }
 
     @Override
     public MatchInfo finishMatch(String homeTeamName, String guestTeamName) throws IllegalArgumentException {
         validateArguments(homeTeamName, guestTeamName);
+        if (!isMatchInProgress(homeTeamName, guestTeamName))
+            throw new IllegalArgumentException("Match is not in progress");
+
         return repository.delete(new MatchInfo(homeTeamName, guestTeamName));
     }
 
     @Override
     public MatchInfo updateMatch(MatchInfo matchInfo) throws IllegalArgumentException {
         validateArguments(matchInfo);
+        if (!isMatchInProgress(matchInfo.homeTeamName(), matchInfo.guestTeamName()))
+            throw new IllegalArgumentException("Match is not in progress");
+
+        validateScoreValues(matchInfo);
+
         return repository.update(matchInfo);
     }
 
@@ -49,6 +60,19 @@ class FootballWorldCupScoreBoard implements TrackableScoreBoard {
     @Override
     public String toString() {
         return repository.toString();
+    }
+
+    private void validateScoreValues(MatchInfo matchInfo) {
+        MatchInfo matchInProgress = repository.findByNames(matchInfo.homeTeamName(), matchInfo.guestTeamName());
+
+        if (matchInProgress.homeTeamScore() > matchInfo.homeTeamScore() ||
+                matchInProgress.guestTeamScore() > matchInfo.guestTeamScore()) {
+            throw new IllegalArgumentException("Match score must be positive number an not less than current score");
+        }
+    }
+
+    private boolean isMatchInProgress(String homeTeamName, String guestTeamName) {
+        return repository.findByNames(homeTeamName, guestTeamName) != null;
     }
 
     private void validateArguments(String homeTeam, String guestTeam) {

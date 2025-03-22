@@ -38,8 +38,8 @@ public class FootballScoreBoardTest {
         var expectedEmptyScoreBoard = List.of();
 
         // when
-        MatchInfo startMatchInfo = footballScoreBoard.startMatch("BRAZIL", "ARGENTINA");
-        MatchInfo endMatchInfo = footballScoreBoard.finishMatch("BRAZIL", "ARGENTINA");
+        footballScoreBoard.startMatch("BRAZIL", "ARGENTINA");
+        footballScoreBoard.finishMatch("BRAZIL", "ARGENTINA");
 
         // then
         assertEquals(expectedEmptyScoreBoard, footballScoreBoard.getBoardRanking());
@@ -101,6 +101,41 @@ public class FootballScoreBoardTest {
         System.out.println(footballScoreBoard);
 
         assertTrue(true);
+    }
+
+    @Test
+    public void whenMatchAlreadyStarted_AndCalledStartAgain_Expect_Exception() {
+        // given
+        var expectedMatchInfo = new MatchInfo("BRAZIL", 0, "FRANCE", 0);
+
+        // when
+        footballScoreBoard.startMatch("BRAZIL", "FRANCE");
+
+        // then
+        assertEquals(List.of(expectedMatchInfo), footballScoreBoard.getBoardRanking());
+        assertThrows(IllegalArgumentException.class, () -> footballScoreBoard.startMatch("BRAZIL", "FRANCE"));
+    }
+
+    @Test
+    public void whenUpdateMatchCalled_WithWrongScore_Expect_Exception() {
+        // when
+        footballScoreBoard.startMatch("BRAZIL", "FRANCE");
+        footballScoreBoard.updateMatch(
+                new MatchInfo("BRAZIL", 2, "FRANCE", 1)
+        );
+
+        // then
+        assertThrows(IllegalArgumentException.class, () -> footballScoreBoard.updateMatch(
+                new MatchInfo("BRAZIL", 1, "FRANCE", 1)
+        ));
+    }
+
+    @Test
+    public void whenFinish_Or_Update_MatchCalled_WhenMatchIsNotInProgress_Expect_Exception() {
+        assertThrows(IllegalArgumentException.class, () -> footballScoreBoard.finishMatch("BRAZIL", "ARGENTINA"));
+        assertThrows(IllegalArgumentException.class, () -> footballScoreBoard.updateMatch(
+                new MatchInfo("BRAZIL", 1, "ARGENTINA", 0)
+        ));
     }
 
     @ParameterizedTest

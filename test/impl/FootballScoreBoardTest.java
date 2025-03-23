@@ -73,13 +73,19 @@ public class FootballScoreBoardTest {
         footballScoreBoard.startMatch("SPAIN", "FRANCE");
         footballScoreBoard.startMatch("CROATIA", "ENGLAND");
 
-
+        //then
         assertEquals(expectedMatchesInProgress, footballScoreBoard.getBoardRanking());
     }
 
     @Test
     public void whenMultipleMachStarted__And_UpdateScore_ExpectToShow_OnScoreBoard_SortedByMostScores_And_MostRecentStart() {
         // given
+        var expectedMatchesInProgress = List.of(
+                new MatchInfo("SPAIN", 1, "FRANCE", 1),
+                new MatchInfo("BRAZIL", 1, "ARGENTINA", 0),
+                new MatchInfo("PORTUGAL", 0, "ITALY", 0),
+                new MatchInfo("CROATIA", 0, "ENGLAND", 0)
+        );
 
         // when
         footballScoreBoard.startMatch("BRAZIL", "ARGENTINA");
@@ -97,10 +103,13 @@ public class FootballScoreBoardTest {
                 new MatchInfo("SPAIN", 1, "FRANCE", 1)
         );
 
-
-        System.out.println(footballScoreBoard);
-
-        assertTrue(true);
+        // then
+        assertEquals("""
+                1. SPAIN 1 - FRANCE 1
+                2. BRAZIL 1 - ARGENTINA 0
+                3. PORTUGAL 0 - ITALY 0
+                4. CROATIA 0 - ENGLAND 0""", footballScoreBoard.toString());
+        assertEquals(expectedMatchesInProgress, footballScoreBoard.getBoardRanking());
     }
 
     @Test

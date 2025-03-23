@@ -71,7 +71,7 @@ public class SimpleOrderedInMemoryCollection implements Repository, Sortable {
         for (int i = 0; i < sorted.size(); i++) {
             stringBuilder.append((i + 1)).append(". ").append(sorted.get(i)).append("\n");
         }
-        return stringBuilder.toString();
+        return stringBuilder.toString().replaceAll("\\n$", "");
     }
 
     @Override

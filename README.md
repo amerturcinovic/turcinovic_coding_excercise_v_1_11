@@ -52,6 +52,9 @@ class Scratch {
     public static void main(String[] args) {
         TrackableScoreBoard scoreBoard = new FootballWorldCupScoreBoard();
         scoreBoard.startMatch("BRAZIL", "ARGENTINA");
+        scoreBoard.updateMatch(
+                new MatchInfo("BRAZIL", 1, "ARGENTINA", 0)
+        );
         List<MatchInfo> boardRanking = scoreBoard.getBoardRanking();
     }
 }

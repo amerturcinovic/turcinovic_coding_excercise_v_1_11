@@ -67,7 +67,8 @@ class Scratch {
                 new SimpleOrderedInMemoryCollection()
         );
         scoreBoard.startMatch("BRAZIL", "ARGENTINA");
-        List<MatchInfo> boardRanking = scoreBoard.getBoardRanking();
+        List<MatchInfo> boardRanking = scoreBoard.getBoardRanking(); // to get list of matches
+        System.out.println(boardRanking); // will call .toString() and return as: 1. BRAZIL 0 - ARGENTINA 0 
     }
 }
 ```

@@ -2,8 +2,8 @@ package impl;
 
 import api.TrackableScoreBoard;
 import impl.models.MatchInfo;
-import impl.persistance.Repository;
-import impl.persistance.SimpleOrderedInMemoryCollection;
+import impl.persistence.Repository;
+import impl.persistence.SimpleOrderedInMemoryCollection;
 
 import java.util.List;
 

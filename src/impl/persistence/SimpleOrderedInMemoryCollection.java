@@ -1,4 +1,4 @@
-package impl.persistance;
+package impl.persistence;
 
 import impl.models.MatchInfo;
 
